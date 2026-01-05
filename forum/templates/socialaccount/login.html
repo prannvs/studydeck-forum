@@ -1,0 +1,21 @@
+{% extends "forum/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body text-center p-5">
+                <h2 class="card-title mb-4">Connect to Google</h2>
+                <p class="mb-4">You are about to sign in using your BITS Pilani Google Account.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        Continue to Google
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

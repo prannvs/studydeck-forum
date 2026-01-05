@@ -4,7 +4,7 @@
 {% block content %}
     <a href="{% url 'home' %}" class="text-decoration-none">&larr; Back to Forum</a>
     
-    <div class="card mt-3">
+    <div class="card mt-3 mb-4">
         <div class="card-body">
             <h1 class="card-title">{{ thread.title }}</h1>
             
@@ -15,42 +15,57 @@
                      alt="{{ thread.author.username }}">
                 
                 <div>
-                    <span class="fw-bold">
+                    <a href="{% url 'user_profile' thread.author.username %}" class="text-dark text-decoration-none fw-bold">
                         {{ thread.author.get_full_name|default:thread.author.username }}
-                    </span>
+                    </a>
                     <br>
-                    <small class="text-muted">{{ thread.created_at|date:"M d, Y" }}</small>
+                    <small class="text-muted">
+                        {{ thread.created_at|date:"M d, Y" }} in {{ thread.category.name }}
+                    </small>
                 </div>
             </div>
+
             <p class="card-text mt-4">{{ thread.content|linebreaks }}</p>
         </div>
     </div>
 
-    <h4 class="mt-5">Replies</h4>
+    <h4>Replies ({{ replies.count }})</h4>
     {% for reply in replies %}
-        <div class="card mb-2">
-            <div class="card-body py-2">
-                <strong>{{ reply.author.username }}</strong>
-                <span class="text-muted small ms-2">{{ reply.created_at|timesince }} ago</span>
-                <p class="mb-0 mt-1">{{ reply.content }}</p>
+        <div class="card mb-3">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center mb-2">
+                    <img src="{{ reply.author|google_avatar }}" 
+                         class="rounded-circle me-2" 
+                         width="32" height="32">
+                    
+                    <div>
+                        <a href="{% url 'user_profile' reply.author.username %}" class="text-dark text-decoration-none fw-bold">
+                            {{ reply.author.get_full_name|default:reply.author.username }}
+                        </a>
+                        <span class="text-muted small ms-2">{{ reply.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                <p class="mb-0 ps-5">{{ reply.content|linebreaksbr }}</p>
             </div>
         </div>
     {% empty %}
-        <p class="text-muted">No replies yet.</p>
+        <p class="text-muted fst-italic">No replies yet. Be the first!</p>
     {% endfor %}
 
     {% if user.is_authenticated %}
-        <div class="mt-4 mb-5">
+        <div class="mt-5 mb-5">
             <h5>Leave a Reply</h5>
             <form method="POST">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <textarea name="content" class="form-control" rows="3" required></textarea>
+                    <textarea name="content" class="form-control" rows="3" required placeholder="Write your reply here..."></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Post Reply</button>
             </form>
         </div>
     {% else %}
-        <div class="alert alert-warning mt-4">Please login to reply.</div>
+        <div class="alert alert-warning mt-5">
+            Please <a href="{% url 'google_login' %}">login</a> to post a reply.
+        </div>
     {% endif %}
 {% endblock %}
