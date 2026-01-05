@@ -49,10 +49,10 @@
 
         <div class="list-group">
             {% for thread in threads %}
-                <div class="list-group-item p-3">
+                <div class="list-group-item p-3 position-relative list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">
-                            <a href="{% url 'thread_detail' thread.slug %}" class="text-decoration-none text-dark fw-bold">
+                            <a href="{% url 'thread_detail' thread.slug %}" class="text-decoration-none text-dark fw-bold stretched-link">
                                 {{ thread.title }}
                             </a>
                         </h5>
@@ -66,7 +66,7 @@
                             {{ thread.category.name }} • Posted by {{ thread.author.username }}
                         </small>
                         
-                        <a href="{% url 'like_thread' thread.slug %}" class="text-decoration-none {% if user in thread.likes.all %}text-danger{% else %}text-muted{% endif %}">
+                        <a href="{% url 'like_thread' thread.slug %}" class="text-decoration-none position-relative z-2 {% if user in thread.likes.all %}text-danger{% else %}text-muted{% endif %}">
                             <i class="bi {% if user in thread.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
                             {{ thread.likes.count }}
                         </a>
