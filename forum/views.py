@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Thread, Reply, Category
 from django.contrib.postgres.search import TrigramSimilarity
+from .forms import ThreadForm
+
 
 
 def home(request):
@@ -56,3 +58,17 @@ def thread_detail(request, thread_id):
             return redirect('thread_detail', thread_id=thread.id)
 
     return render(request, 'forum/thread_detail.html', {'thread': thread, 'replies': replies})
+
+@login_required
+def create_thread(request):
+    if request.method == 'POST':
+        form = ThreadForm(request.POST)
+        if form.is_valid():
+            thread = form.save(commit=False)
+            thread.author = request.user
+            thread.save()
+            return redirect('thread_detail', thread_id=thread.id)
+    else:
+        form = ThreadForm()
+    
+    return render(request, 'forum/create_thread.html', {'form': form})
