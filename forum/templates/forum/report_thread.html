@@ -1,0 +1,33 @@
+{% extends 'forum/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Report Thread</h5>
+            </div>
+            <div class="card-body">
+                <p>You are reporting: <strong>{{ thread.title }}</strong></p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reason</label>
+                        {{ form.reason }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Details</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                        <a href="{% url 'thread_detail' thread.slug %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

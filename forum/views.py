@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Thread, Reply, Category
+from .models import Thread, Reply, Category,Tag, Report
 from django.contrib.postgres.search import TrigramSimilarity
-from .forms import ThreadForm
+from .forms import ThreadForm, ReportForm
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
+from django.contrib import messages
+
 
 def home(request):
     category_id = request.GET.get('category')
@@ -138,3 +140,21 @@ def like_thread(request, slug):
         thread.likes.add(request.user)
         
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+@login_required
+def report_thread(request, slug):
+    thread = get_object_or_404(Thread, slug=slug)
+    
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.thread = thread
+            report.save()
+            # Optional: Show a success message
+            return redirect('thread_detail', slug=thread.slug)
+    else:
+        form = ReportForm()
+    
+    return render(request, 'forum/report_thread.html', {'form': form, 'thread': thread})

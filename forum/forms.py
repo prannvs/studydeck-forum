@@ -1,5 +1,5 @@
 from django import forms
-from .models import Thread, Tag
+from .models import Thread, Tag, Report
 
 class ThreadForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
@@ -17,4 +17,13 @@ class ThreadForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-select'}),
             'course_tag': forms.Select(attrs={'class': 'form-select'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+        }
+        
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reason', 'description']
+        widgets = {
+            'reason': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe the issue...'}),
         }

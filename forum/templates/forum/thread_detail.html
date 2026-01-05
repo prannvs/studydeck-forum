@@ -46,6 +46,9 @@
                                     <a class="dropdown-item text-danger" href="{% url 'delete_thread' thread.slug %}" onclick="return confirm('Are you sure?');">
                                         <i class="bi bi-trash me-2"></i>Delete Thread
                                     </a>
+                                    <a class="dropdown-item text-warning" href="{% url 'report_thread' thread.slug %}">
+                                        <i class="bi bi-flag me-2"></i>Report Content
+                                    </a>
                                 </li>
                             </ul>
                         </div>
