@@ -32,7 +32,7 @@
             <div class="tab-pane fade show active" id="threads">
                 <div class="list-group">
                     {% for thread in threads %}
-                        <a href="{% url 'thread_detail' thread.id %}" class="list-group-item list-group-item-action">
+                        <a href="{% url 'thread_detail' thread.slug %}" class="list-group-item list-group-item-action">
                             <h5 class="mb-1">{{ thread.title }}</h5>
                             <small class="text-muted">{{ thread.created_at|date:"M d, Y" }}</small>
                         </a>
@@ -45,7 +45,7 @@
             <div class="tab-pane fade" id="replies">
                 <div class="list-group">
                     {% for reply in replies %}
-                        <a href="{% url 'thread_detail' reply.thread.id %}" class="list-group-item list-group-item-action">
+                        <a href="{% url 'thread_detail' reply.thread.slug %}" class="list-group-item list-group-item-action">
                             <small class="text-muted">Replied to: <strong>{{ reply.thread.title }}</strong></small>
                             <p class="mb-1 mt-1">"{{ reply.content|truncatewords:15 }}"</p>
                         </a>

@@ -40,22 +40,26 @@ def user_profile(request, username):
     })
 
 @login_required
-def thread_detail(request, thread_id):
-    thread = get_object_or_404(Thread, pk=thread_id)
+def thread_detail(request, slug): 
+    thread = get_object_or_404(Thread, slug=slug)
     replies = thread.replies.filter(is_deleted=False)
     
     if request.method == 'POST':
         content = request.POST.get('content')
         Reply.objects.create(thread=thread, author=request.user, content=content)
-        return redirect('thread_detail', thread_id=thread.id)
+        return redirect('thread_detail', slug=thread.slug) 
 
     return render(request, 'forum/thread_detail.html', {'thread': thread, 'replies': replies})
 
 def search(request):
     query = request.GET.get('q')
-    results = Thread.objects.annotate(
-        similarity=TrigramSimilarity('title', query)
-    ).filter(similarity__gt=0.3).order_by('-similarity')
+    if query:
+        results = Thread.objects.annotate(
+            similarity=TrigramSimilarity('title', query)
+        ).filter(similarity__gt=0.3).order_by('-similarity')
+    else:
+        results = Thread.objects.none()
+    return render(request, 'forum/home.html', {'threads': results})
     
 @login_required
 def delete_reply(request, reply_id):
@@ -63,21 +67,7 @@ def delete_reply(request, reply_id):
     if request.user == reply.author or request.user.is_staff:
         reply.is_deleted = True
         reply.save()
-    return redirect('thread_detail', thread_id=reply.thread.id)
-
-def thread_detail(request, thread_id):
-    thread = get_object_or_404(Thread, pk=thread_id)
-    replies = thread.replies.all()
-    
-    if request.method == 'POST':
-        if not request.user.is_authenticated:
-            return redirect('account_login')
-        content = request.POST.get('content')
-        if content:
-            Reply.objects.create(thread=thread, author=request.user, content=content)
-            return redirect('thread_detail', thread_id=thread.id)
-
-    return render(request, 'forum/thread_detail.html', {'thread': thread, 'replies': replies})
+    return redirect('thread_detail', slug=reply.thread.slug)
 
 @login_required
 def create_thread(request):
@@ -87,7 +77,7 @@ def create_thread(request):
             thread = form.save(commit=False)
             thread.author = request.user
             thread.save()
-            return redirect('thread_detail', thread_id=thread.id)
+            return redirect('thread_detail', slug=thread.slug)
     else:
         form = ThreadForm()
     
