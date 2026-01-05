@@ -11,13 +11,13 @@
             
             <div class="list-group list-group-flush">
                 <a href="{% url 'home' %}" 
-                class="list-group-item list-group-item-action {% if not current_category %}active bg-light text-primary fw-bold{% endif %}">
+                   class="list-group-item list-group-item-action {% if not current_category %}active bg-light text-primary fw-bold{% endif %}">
                     All Threads
                 </a>
 
                 {% for cat in categories %}
                     <a href="{% url 'home' %}?category={{ cat.id }}" 
-                    class="list-group-item list-group-item-action {% if current_category == cat.id %}active bg-light text-primary fw-bold{% endif %}">
+                       class="list-group-item list-group-item-action {% if current_category == cat.id %}active bg-light text-primary fw-bold{% endif %}">
                         {{ cat.name }}
                     </a>
                 {% empty %}
@@ -26,10 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-9">
-        ```
 
-**Why this works:** I removed the duplicate `<div class="col-md-3 mb-4">` line. Now the sidebar will take up the full 25% width intended, and the text will fit perfectly.
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>
