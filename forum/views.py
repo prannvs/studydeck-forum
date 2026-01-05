@@ -3,17 +3,40 @@ from django.contrib.auth.decorators import login_required
 from .models import Thread, Reply, Category
 from django.contrib.postgres.search import TrigramSimilarity
 from .forms import ThreadForm
-
-
-
+from django.contrib.auth.models import User
 def home(request):
-    sort_by = request.GET.get('sort', 'latest')
-    if sort_by == 'popular':
-        threads = sorted(Thread.objects.all(), key=lambda t: t.total_likes(), reverse=True)
+    category_id = request.GET.get('category')
+    sort_by = request.GET.get('sort', 'newest')
+
+    threads = Thread.objects.all()
+
+    if category_id:
+        threads = threads.filter(category_id=category_id)
+
+    if sort_by == 'oldest':
+        threads = threads.order_by('created_at')
     else:
-        threads = Thread.objects.all().order_by('-created_at')
+        threads = threads.order_by('-created_at')
+
+    categories = Category.objects.all()
+
+    return render(request, 'forum/home.html', {
+        'threads': threads, 
+        'categories': categories,
+        'current_category': int(category_id) if category_id else None
+    })
+
+def user_profile(request, username):
+    profile_user = get_object_or_404(User, username=username)
     
-    return render(request, 'forum/home.html', {'threads': threads})
+    threads = Thread.objects.filter(author=profile_user).order_by('-created_at')
+    replies = Reply.objects.filter(author=profile_user).order_by('-created_at')
+    
+    return render(request, 'forum/profile.html', {
+        'profile_user': profile_user, 
+        'threads': threads, 
+        'replies': replies
+    })
 
 @login_required
 def thread_detail(request, thread_id):

@@ -1,23 +1,63 @@
 {% extends 'forum/base.html' %}
 
 {% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Latest Discussions</h2>
-        <a href="{% url 'create_thread' %}" class="btn btn-success">+ New Thread</a>
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">Categories</div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'home' %}" class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
+                    All Threads
+                </a>
+                {% for cat in categories %}
+                    <a href="?category={{ cat.id }}" class="list-group-item list-group-item-action {% if current_category == cat.id %}active{% endif %}">
+                        {{ cat.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <div class="list-group">
-        {% for thread in threads %}
-            <a href="{% url 'thread_detail' thread.id %}" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ thread.title }}</h5>
-                    <small>{{ thread.created_at|date:"M d, Y" }}</small>
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>
+                {% if current_category %}
+                    {{ categories|get_item:current_category }} Threads
+                {% else %}
+                    Latest Discussions
+                {% endif %}
+            </h2>
+            
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Sort By
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?sort=newest{% if current_category %}&category={{ current_category }}{% endif %}">Newest</a></li>
+                        <li><a class="dropdown-item" href="?sort=oldest{% if current_category %}&category={{ current_category }}{% endif %}">Oldest</a></li>
+                    </ul>
                 </div>
-                <p class="mb-1">{{ thread.content|truncatewords:20 }}</p>
-                <small class="text-muted">Posted by {{ thread.author.username }} in {{ thread.category.name }}</small>
-            </a>
-        {% empty %}
-            <div class="alert alert-info">No threads found. Be the first to post!</div>
-        {% endfor %}
+                <a href="{% url 'create_thread' %}" class="btn btn-success">+ New Thread</a>
+            </div>
+        </div>
+
+        <div class="list-group">
+            {% for thread in threads %}
+                <a href="{% url 'thread_detail' thread.id %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ thread.title }}</h5>
+                        <small>{{ thread.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <p class="mb-1 text-muted">{{ thread.content|truncatewords:20 }}</p>
+                    <small class="text-primary">
+                        {{ thread.category.name }} • Posted by {{ thread.author.username }}
+                    </small>
+                </a>
+            {% empty %}
+                <div class="alert alert-info">No threads found in this category.</div>
+            {% endfor %}
+        </div>
     </div>
+</div>
 {% endblock %}
