@@ -55,11 +55,16 @@
                             <a href="{% url 'thread_detail' thread.slug %}" class="text-decoration-none text-dark fw-bold stretched-link">
                                 {{ thread.title }}
                             </a>
+                            
                             {% if thread.course_tag %}
                                 <span class="badge bg-info text-dark ms-2" style="font-size: 0.8em;">
                                     {{ thread.course_tag.code }}
                                 </span>
                             {% endif %}
+
+                            {% for tag in thread.tags.all %}
+                                <span class="badge bg-secondary ms-1" style="font-size: 0.8em;">#{{ tag.name }}</span>
+                            {% endfor %}
                         </h5>
                         <small class="text-muted text-nowrap">{{ thread.created_at|date:"M d" }}</small>
                     </div>

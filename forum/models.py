@@ -3,6 +3,18 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 import uuid
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 class Course(models.Model):
     code = models.CharField(max_length=20, unique=True) 
     title = models.CharField(max_length=200) 
@@ -21,8 +33,6 @@ class Resource(models.Model):
 
     def __str__(self):
         return self.title
-    
-
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -52,6 +62,7 @@ class Thread(models.Model):
     is_locked = models.BooleanField(default=False)
         
     likes = models.ManyToManyField(User, related_name='thread_likes', blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='threads')
 
     def total_likes(self):
         return self.likes.count()
