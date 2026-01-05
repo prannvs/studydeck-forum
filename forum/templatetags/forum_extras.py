@@ -11,5 +11,15 @@ def google_avatar(user):
             return social.extra_data['picture']
     except Exception:
         pass
-    
     return "https://ui-avatars.com/api/?name=" + user.username
+
+@register.filter
+def get_item(queryset, key):
+    """
+    Look up an item in a QuerySet by its ID.
+    Usage: {{ categories|get_item:current_category_id }}
+    """
+    try:
+        return queryset.get(id=key).name
+    except:
+        return ""
