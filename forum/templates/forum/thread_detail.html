@@ -1,4 +1,5 @@
 {% extends 'forum/base.html' %}
+{% load forum_extras %}
 
 {% block content %}
     <a href="{% url 'home' %}" class="text-decoration-none">&larr; Back to Forum</a>
@@ -6,9 +7,21 @@
     <div class="card mt-3">
         <div class="card-body">
             <h1 class="card-title">{{ thread.title }}</h1>
-            <h6 class="card-subtitle mb-2 text-muted">
-                By {{ thread.author.username }} | {{ thread.created_at|date:"M d, Y" }}
-            </h6>
+            
+            <div class="d-flex align-items-center mb-3 mt-3">
+                <img src="{{ thread.author|google_avatar }}" 
+                     class="rounded-circle me-2" 
+                     width="40" height="40" 
+                     alt="{{ thread.author.username }}">
+                
+                <div>
+                    <span class="fw-bold">
+                        {{ thread.author.get_full_name|default:thread.author.username }}
+                    </span>
+                    <br>
+                    <small class="text-muted">{{ thread.created_at|date:"M d, Y" }}</small>
+                </div>
+            </div>
             <p class="card-text mt-4">{{ thread.content|linebreaks }}</p>
         </div>
     </div>
