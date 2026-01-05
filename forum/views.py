@@ -5,6 +5,7 @@ from django.contrib.postgres.search import TrigramSimilarity
 from .forms import ThreadForm
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator  # IMPORT PAGINATOR
 
 def home(request):
     category_id = request.GET.get('category')
@@ -20,10 +21,14 @@ def home(request):
     else:
         threads = threads.order_by('-created_at')
 
+    paginator = Paginator(threads, 10) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     categories = Category.objects.all()
 
     return render(request, 'forum/home.html', {
-        'threads': threads, 
+        'page_obj': page_obj,
         'categories': categories,
         'current_category': int(category_id) if category_id else None
     })

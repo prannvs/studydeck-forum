@@ -48,15 +48,20 @@
         </div>
 
         <div class="list-group">
-            {% for thread in threads %}
+            {% for thread in page_obj %}
                 <div class="list-group-item p-3 position-relative mb-2 border rounded shadow-sm">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">
                             <a href="{% url 'thread_detail' thread.slug %}" class="text-decoration-none text-dark fw-bold stretched-link">
                                 {{ thread.title }}
                             </a>
+                            {% if thread.course_tag %}
+                                <span class="badge bg-info text-dark ms-2" style="font-size: 0.8em;">
+                                    {{ thread.course_tag.code }}
+                                </span>
+                            {% endif %}
                         </h5>
-                        <small class="text-muted text-nowrap">{{ thread.created_at|date:"M d, Y" }}</small>
+                        <small class="text-muted text-nowrap">{{ thread.created_at|date:"M d" }}</small>
                     </div>
                     
                     <p class="mb-2 text-muted">{{ thread.content|truncatewords:20 }}</p>
@@ -73,9 +78,37 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="alert alert-info">No threads found in this category.</div>
+                <div class="alert alert-info">No threads found.</div>
             {% endfor %}
         </div>
+
+        {% if page_obj.has_other_pages %}
+            <nav aria-label="Thread pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
