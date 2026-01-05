@@ -50,7 +50,7 @@ class Thread(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_locked = models.BooleanField(default=False)
-    
+        
     likes = models.ManyToManyField(User, related_name='thread_likes', blank=True)
 
     def total_likes(self):

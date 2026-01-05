@@ -55,10 +55,22 @@
                 <div class="mt-2">
                     {{ thread.content|linebreaks }}
                 </div>
+
+                <div class="mt-4 pt-3 border-top d-flex align-items-center">
+                    <a href="{% url 'like_thread' thread.slug %}" class="btn btn-sm rounded-pill me-3 {% if user in thread.likes.all %}btn-danger text-white{% else %}btn-outline-danger{% endif %}">
+                        <i class="bi {% if user in thread.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                        {% if user in thread.likes.all %}Liked{% else %}Like{% endif %} 
+                        <span class="badge bg-white text-danger ms-1">{{ thread.likes.count }}</span>
+                    </a>
+
+                    <span class="text-muted small">
+                        <i class="bi bi-chat-left-text me-1"></i> {{ thread.replies.count }} replies
+                    </span>
+                </div>
             </div>
         </div>
 
-        <h5 class="mb-3 text-muted">Replies ({{ replies.count }})</h5>
+        <h5 class="mb-3 text-muted">Replies</h5>
 
         {% for reply in replies %}
             <div class="card mb-3 border-0 shadow-sm">
