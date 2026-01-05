@@ -114,3 +114,14 @@ def delete_reply(request, reply_id):
         reply.is_deleted = True
         reply.save()
     return redirect('thread_detail', slug=reply.thread.slug)
+
+@login_required
+def like_thread(request, slug):
+    thread = get_object_or_404(Thread, slug=slug)
+    
+    if request.user in thread.likes.all():
+        thread.likes.remove(request.user)
+    else:
+        thread.likes.add(request.user)
+        
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
