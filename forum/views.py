@@ -4,6 +4,7 @@ from .models import Thread, Reply, Category
 from django.contrib.postgres.search import TrigramSimilarity
 from .forms import ThreadForm
 from django.contrib.auth.models import User
+from django.contrib.admin.views.decorators import staff_member_required
 
 def home(request):
     category_id = request.GET.get('category')
@@ -69,14 +70,6 @@ def search(request):
     return render(request, 'forum/home.html', {'threads': results})
     
 @login_required
-def delete_reply(request, reply_id):
-    reply = get_object_or_404(Reply, pk=reply_id)
-    if request.user == reply.author or request.user.is_staff:
-        reply.is_deleted = True
-        reply.save()
-    return redirect('thread_detail', slug=reply.thread.slug)
-
-@login_required
 def create_thread(request):
     if request.method == 'POST':
         form = ThreadForm(request.POST)
@@ -90,23 +83,34 @@ def create_thread(request):
     
     return render(request, 'forum/create_thread.html', {'form': form})
 
-from django.contrib.admin.views.decorators import staff_member_required
-
 @staff_member_required
 def lock_thread(request, slug):
     thread = get_object_or_404(Thread, slug=slug)
-    thread.is_locked = not thread.is_locked  # Toggle True/False
+    thread.is_locked = not thread.is_locked
     thread.save()
     return redirect('thread_detail', slug=thread.slug)
-
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def delete_thread(request, slug):
     thread = get_object_or_404(Thread, slug=slug)
-    
     if request.user == thread.author or request.user.is_staff:
         thread.delete()
         return redirect('home')
-    
     return redirect('thread_detail', slug=slug)
+
+@login_required
+def like_reply(request, reply_id):
+    reply = get_object_or_404(Reply, pk=reply_id)
+    if request.user in reply.likes.all():
+        reply.likes.remove(request.user)
+    else:
+        reply.likes.add(request.user)
+    return redirect('thread_detail', slug=reply.thread.slug)
+
+@login_required
+def delete_reply(request, reply_id):
+    reply = get_object_or_404(Reply, pk=reply_id)
+    if request.user == reply.author or request.user.is_staff:
+        reply.is_deleted = True
+        reply.save()
+    return redirect('thread_detail', slug=reply.thread.slug)

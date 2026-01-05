@@ -8,4 +8,6 @@ urlpatterns = [
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
     path('thread/<slug:slug>/lock/', views.lock_thread, name='lock_thread'),
     path('thread/<slug:slug>/delete/', views.delete_thread, name='delete_thread'),
+    path('reply/<int:reply_id>/like/', views.like_reply, name='like_reply'),
+    path('reply/<int:reply_id>/delete/', views.delete_reply, name='delete_reply'),
 ]

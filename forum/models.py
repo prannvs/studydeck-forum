@@ -73,6 +73,7 @@ class Reply(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
+    likes = models.ManyToManyField(User, related_name='liked_replies', blank=True)
 
     def __str__(self):
         return f"Reply by {self.author.username} on {self.thread.title}"
