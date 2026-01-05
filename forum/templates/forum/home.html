@@ -4,20 +4,27 @@
 {% block content %}
 <div class="row">
     <div class="col-md-3 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">Categories</div>
-            <div class="list-group list-group-flush">
-                <a href="{% url 'home' %}" 
-                class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
-                    All Threads
-                </a>
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
                 
-                {% for cat in categories %}
-                    <a href="{% url 'home' %}?category={{ cat.id }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                    class="list-group-item list-group-item-action {% if current_category == cat.id %}active{% endif %}">
-                        {{ cat.name }}
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'home' %}" 
+                    class="list-group-item list-group-item-action {% if not current_category %}active bg-light text-primary fw-bold{% endif %}">
+                        All Threads
                     </a>
-                {% endfor %}
+
+                    {% for cat in categories %}
+                        <a href="{% url 'home' %}?category={{ cat.id }}" 
+                        class="list-group-item list-group-item-action {% if current_category == cat.id %}active bg-light text-primary fw-bold{% endif %}">
+                            {{ cat.name }}
+                        </a>
+                    {% empty %}
+                        <div class="list-group-item text-muted">No categories found.</div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
