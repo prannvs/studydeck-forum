@@ -8,16 +8,37 @@
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">StudyDeck</a>
-        <div>
-            {% if user.is_authenticated %}
-                <span class="text-white me-3">Hello, {{ user.username }}</span>
-                <a href="{% url 'account_logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
-            {% else %}
-                <a href="{% url 'account_login' %}" class="btn btn-primary btn-sm">Login</a>
-            {% endif %}
+        
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                {% if user.is_authenticated %}
+                    {% load socialaccount %}
+                    {% get_social_accounts user as accounts %}
+                    
+                    <li class="nav-item d-flex align-items-center">
+                        {% if accounts.google %}
+                            <img src="{{ accounts.google.0.extra_data.picture }}" 
+                                 alt="Profile" 
+                                 class="rounded-circle me-2" 
+                                 style="width: 32px; height: 32px; object-fit: cover;">
+                        {% endif %}
+                        
+                        <span class="text-white me-3">
+                            Hello, {{ user.get_full_name|default:user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'account_logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'google_login' %}" class="btn btn-primary btn-sm">Login with BITS Mail</a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
     </div>
 </nav>
