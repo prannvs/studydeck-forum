@@ -2,23 +2,18 @@
 {% load forum_extras %}
 
 {% block content %}
-
 <div class="row">
     <div class="col-md-3 mb-4"> 
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0 text-nowrap">Categories</h5>
             </div>
-            
             <div class="list-group list-group-flush">
-                <a href="{% url 'home' %}" 
-                   class="list-group-item list-group-item-action {% if not current_category %}active bg-light text-primary fw-bold{% endif %}">
+                <a href="{% url 'home' %}" class="list-group-item list-group-item-action {% if not current_category %}active bg-light text-primary fw-bold{% endif %}">
                     All Threads
                 </a>
-
                 {% for cat in categories %}
-                    <a href="{% url 'home' %}?category={{ cat.id }}" 
-                       class="list-group-item list-group-item-action {% if current_category == cat.id %}active bg-light text-primary fw-bold{% endif %}">
+                    <a href="{% url 'home' %}?category={{ cat.id }}" class="list-group-item list-group-item-action {% if current_category == cat.id %}active bg-light text-primary fw-bold{% endif %}">
                         {{ cat.name }}
                     </a>
                 {% empty %}
@@ -54,7 +49,7 @@
 
         <div class="list-group">
             {% for thread in threads %}
-                <a href="{% url 'thread_detail' thread.id %}" class="list-group-item list-group-item-action">
+                <a href="{% url 'thread_detail' thread.slug %}" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ thread.title }}</h5>
                         <small>{{ thread.created_at|date:"M d, Y" }}</small>
@@ -70,4 +65,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}  

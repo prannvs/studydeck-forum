@@ -8,6 +8,22 @@
         <div class="card-body">
             <h1 class="card-title">{{ thread.title }}</h1>
             
+            {% if user.is_staff or user == thread.author %}
+                <div class="mb-3">
+                    
+                    {% if user.is_staff %}
+                        <span class="badge bg-danger">Moderator Mode</span>
+                        <a href="{% url 'lock_thread' thread.slug %}" class="btn btn-sm btn-warning ms-2">
+                            {% if thread.is_locked %}Unlock Thread{% else %}Lock Thread{% endif %}
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'delete_thread' thread.slug %}" class="btn btn-sm btn-danger ms-2" onclick="return confirm('Delete this entire thread?');">
+                        Delete Thread
+                    </a>
+                </div>
+            {% endif %}
+            
             <div class="d-flex align-items-center mb-3 mt-3">
                 <img src="{{ thread.author|google_avatar }}" 
                      class="rounded-circle me-2" 
@@ -52,20 +68,27 @@
         <p class="text-muted fst-italic">No replies yet. Be the first!</p>
     {% endfor %}
 
-    {% if user.is_authenticated %}
-        <div class="mt-5 mb-5">
-            <h5>Leave a Reply</h5>
-            <form method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <textarea name="content" class="form-control" rows="3" required placeholder="Write your reply here..."></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Post Reply</button>
-            </form>
+    {% if thread.is_locked %}
+        <div class="alert alert-secondary mt-5 text-center">
+            🔒 <strong>This thread has been locked by a moderator.</strong>
         </div>
     {% else %}
-        <div class="alert alert-warning mt-5">
-            Please <a href="{% url 'google_login' %}">login</a> to post a reply.
-        </div>
+        {% if user.is_authenticated %}
+            <div class="mt-5 mb-5">
+                <h5>Leave a Reply</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" required placeholder="Write your reply here..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="alert alert-warning mt-5">
+                Please <a href="{% url 'google_login' %}">login</a> to post a reply.
+            </div>
+        {% endif %}
     {% endif %}
+
 {% endblock %}

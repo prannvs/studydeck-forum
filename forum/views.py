@@ -40,14 +40,21 @@ def user_profile(request, username):
     })
 
 @login_required
-def thread_detail(request, slug): 
+def thread_detail(request, slug):
     thread = get_object_or_404(Thread, slug=slug)
     replies = thread.replies.filter(is_deleted=False)
     
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return redirect('account_login')
+            
+        if thread.is_locked and not request.user.is_staff:
+            return redirect('thread_detail', slug=thread.slug)
+
         content = request.POST.get('content')
-        Reply.objects.create(thread=thread, author=request.user, content=content)
-        return redirect('thread_detail', slug=thread.slug) 
+        if content:
+            Reply.objects.create(thread=thread, author=request.user, content=content)
+            return redirect('thread_detail', slug=thread.slug)
 
     return render(request, 'forum/thread_detail.html', {'thread': thread, 'replies': replies})
 
@@ -82,3 +89,24 @@ def create_thread(request):
         form = ThreadForm()
     
     return render(request, 'forum/create_thread.html', {'form': form})
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def lock_thread(request, slug):
+    thread = get_object_or_404(Thread, slug=slug)
+    thread.is_locked = not thread.is_locked  # Toggle True/False
+    thread.save()
+    return redirect('thread_detail', slug=thread.slug)
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def delete_thread(request, slug):
+    thread = get_object_or_404(Thread, slug=slug)
+    
+    if request.user == thread.author or request.user.is_staff:
+        thread.delete()
+        return redirect('home')
+    
+    return redirect('thread_detail', slug=slug)
