@@ -4,6 +4,7 @@ from .models import Thread, Reply, Category
 from django.contrib.postgres.search import TrigramSimilarity
 from .forms import ThreadForm
 from django.contrib.auth.models import User
+
 def home(request):
     category_id = request.GET.get('category')
     sort_by = request.GET.get('sort', 'newest')
@@ -63,10 +64,6 @@ def delete_reply(request, reply_id):
         reply.is_deleted = True
         reply.save()
     return redirect('thread_detail', thread_id=reply.thread.id)
-
-def home(request):
-    threads = Thread.objects.all().order_by('-created_at')
-    return render(request, 'forum/home.html', {'threads': threads})
 
 def thread_detail(request, thread_id):
     thread = get_object_or_404(Thread, pk=thread_id)
