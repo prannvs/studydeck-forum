@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Thread, Reply, Category,Tag, Report
+from .models import Thread, Reply, Category, Tag, Report
 from django.contrib.postgres.search import TrigramSimilarity
 from .forms import ThreadForm, ReportForm
 from django.contrib.auth.models import User
@@ -8,12 +8,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.contrib import messages
 
-
 def home(request):
     category_id = request.GET.get('category')
     tag_slug = request.GET.get('tag')
     sort_by = request.GET.get('sort', 'newest')
-
     threads = Thread.objects.all()
 
     if category_id:
@@ -30,9 +28,7 @@ def home(request):
     paginator = Paginator(threads, 10) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
     categories = Category.objects.all()
-    from .models import Tag
     all_tags = Tag.objects.all()
 
     return render(request, 'forum/home.html', {
@@ -46,7 +42,6 @@ def home(request):
 @login_required
 def user_profile(request, username):
     profile_user = get_object_or_404(User, username=username)
-    
     threads = Thread.objects.filter(author=profile_user).order_by('-created_at')
     replies = Reply.objects.filter(author=profile_user).order_by('-created_at')
     
@@ -110,13 +105,15 @@ def lock_thread(request, slug):
     thread = get_object_or_404(Thread, slug=slug)
     thread.is_locked = not thread.is_locked
     thread.save()
-    return redirect('thread_detail', slug=thread.slug)
+    return redirect(request.META.get('HTTP_REFERER', 'thread_detail'))
 
 @login_required
 def delete_thread(request, slug):
     thread = get_object_or_404(Thread, slug=slug)
     if request.user == thread.author or request.user.is_staff:
         thread.delete()
+        if 'moderator' in request.META.get('HTTP_REFERER', ''):
+            return redirect('moderator_dashboard')
         return redirect('home')
     return redirect('thread_detail', slug=slug)
 
@@ -168,15 +165,19 @@ def report_thread(request, slug):
 @staff_member_required
 def moderator_dashboard(request):
     pending_reports = Report.objects.filter(status='PENDING').order_by('-created_at')
+    
     if request.method == 'POST' and 'promote_username' in request.POST:
-        username = request.POST.get('promote_username')
-        try:
-            user_to_promote = User.objects.get(username=username)
-            user_to_promote.is_staff = True
-            user_to_promote.save()
-            messages.success(request, f"Successfully promoted {username} to Moderator.")
-        except User.DoesNotExist:
-            messages.error(request, f"User '{username}' not found.")
+        if not request.user.is_superuser:
+            messages.error(request, "Permission Denied: Only Administrators can promote users.")
+        else:
+            username = request.POST.get('promote_username')
+            try:
+                user_to_promote = User.objects.get(username=username)
+                user_to_promote.is_staff = True
+                user_to_promote.save()
+                messages.success(request, f"Successfully promoted {username} to Moderator.")
+            except User.DoesNotExist:
+                messages.error(request, f"User '{username}' not found.")
             
     return render(request, 'forum/moderator_dashboard.html', {
         'reports': pending_reports
