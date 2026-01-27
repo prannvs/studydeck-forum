@@ -78,13 +78,18 @@ def thread_detail(request, slug):
 @login_required
 def search(request):
     query = request.GET.get('q')
+    
     if query:
         results = Thread.objects.annotate(
-            similarity=TrigramSimilarity('title', query)
-        ).filter(similarity__gt=0.3).order_by('-similarity')
+            similarity=TrigramSimilarity('title', query) + TrigramSimilarity('content', query)
+        ).filter(similarity__gt=0.1).order_by('-similarity')
     else:
         results = Thread.objects.none()
-    return render(request, 'forum/home.html', {'threads': results})
+
+    return render(request, 'forum/home.html', {
+        'page_obj': results, 
+        'query': query 
+    })
     
 @login_required
 def create_thread(request):
