@@ -154,3 +154,5 @@ SOCIALACCOUNT_PROVIDERS = {
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+SOCIALACCOUNT_ADAPTER = 'forum.adapters.MySocialAccountAdapter'

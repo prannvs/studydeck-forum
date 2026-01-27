@@ -43,6 +43,7 @@ def home(request):
         'current_tag': tag_slug
     })
 
+@login_required
 def user_profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     
@@ -74,6 +75,7 @@ def thread_detail(request, slug):
 
     return render(request, 'forum/thread_detail.html', {'thread': thread, 'replies': replies})
 
+@login_required
 def search(request):
     query = request.GET.get('q')
     if query:
@@ -152,9 +154,33 @@ def report_thread(request, slug):
             report.reporter = request.user
             report.thread = thread
             report.save()
-            # Optional: Show a success message
             return redirect('thread_detail', slug=thread.slug)
     else:
         form = ReportForm()
     
     return render(request, 'forum/report_thread.html', {'form': form, 'thread': thread})
+
+@staff_member_required
+def moderator_dashboard(request):
+    pending_reports = Report.objects.filter(status='PENDING').order_by('-created_at')
+    if request.method == 'POST' and 'promote_username' in request.POST:
+        username = request.POST.get('promote_username')
+        try:
+            user_to_promote = User.objects.get(username=username)
+            user_to_promote.is_staff = True
+            user_to_promote.save()
+            messages.success(request, f"Successfully promoted {username} to Moderator.")
+        except User.DoesNotExist:
+            messages.error(request, f"User '{username}' not found.")
+            
+    return render(request, 'forum/moderator_dashboard.html', {
+        'reports': pending_reports
+    })
+
+@staff_member_required
+def resolve_report(request, slug):
+    report = get_object_or_404(Report, slug=slug)
+    report.status = 'RESOLVED'
+    report.save()
+    messages.success(request, "Report marked as resolved.")
+    return redirect('moderator_dashboard')

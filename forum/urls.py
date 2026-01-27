@@ -12,4 +12,6 @@ urlpatterns = [
     path('reply/<int:reply_id>/delete/', views.delete_reply, name='delete_reply'),
     path('thread/<slug:slug>/like/', views.like_thread, name='like_thread'),
     path('thread/<slug:slug>/report/', views.report_thread, name='report_thread'),
+    path('moderator/', views.moderator_dashboard, name='moderator_dashboard'),
+    path('moderator/resolve/<slug:slug>/', views.resolve_report, name='resolve_report'),
 ]

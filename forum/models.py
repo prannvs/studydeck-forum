@@ -106,9 +106,14 @@ class Report(models.Model):
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='reports')
     reason = models.CharField(max_length=20, choices=REPORT_REASONS)
     description = models.TextField(blank=True, help_text="Additional details (optional)")
-    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = str(uuid.uuid4())
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Report on {self.thread.title} ({self.status})"
